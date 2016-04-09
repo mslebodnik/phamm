@@ -113,6 +113,16 @@ class PhammLogin
     {
         $r = ldap_bind($connect, $proposed["dn"], $login_password);
 
+        $search = ldap_search($connect, LDAP_BASE, "member=".$proposed["dn"], array( "dn" ));
+
+        $entries = ldap_get_entries($connect, $search);
+        //found in admin groups
+        if ( $entries["count"] > 0 )
+        {
+                // elevate rights
+                $proposed["level"]=5;
+        }
+
         if ($r)
         {
             $_SESSION["login"]["dn"] = strtolower($proposed["dn"]);

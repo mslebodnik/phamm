@@ -871,6 +871,22 @@ default :
 
 	phamm_print_xhtml ( domains_list($vds,$values) );
 	phamm_print_xhtml ( action_select('domain') );
+    }elseif ( $_SESSION["login"]["level"] > 4 )
+    {
+	$domain=PhammLdap::phamm_search(LDAP_BASE,"member=".$_SESSION["login"]["dn"],array('dn'));
+	for($i=0;$i<$domain["count"];$i++)
+	{
+		$match=array();
+		preg_match("/^cn=admins,ou=groups,vd=([^,]+),".LDAP_BASE."$/",
+			 $domain[$i]["dn"],
+			 $match
+		);
+		$filter=$filter."(vd=".$match[1].")";
+	}
+	$filter="(&(objectClass=virtualDomain)(|$filter))";
+	$vds = PhammLdap::phamm_list(LDAP_BASE,$filter,array('vd'));
+	phamm_print_xhtml ( domains_list($vds,$values));
+	phamm_print_xhtml ( action_select('domain') );
     }
 
     break;
