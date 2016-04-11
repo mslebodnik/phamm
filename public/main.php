@@ -873,6 +873,7 @@ default :
 	phamm_print_xhtml ( action_select('domain') );
     }elseif ( $_SESSION["login"]["level"] > 4 )
     {
+	//find domains where user is admin
 	$domain=PhammLdap::phamm_search(LDAP_BASE,"member=".$_SESSION["login"]["dn"],array('dn'));
 	for($i=0;$i<$domain["count"];$i++)
 	{
@@ -883,7 +884,11 @@ default :
 		);
 		$filter=$filter."(vd=".$match[1].")";
 	}
-	$filter="(&(objectClass=virtualDomain)(|$filter))";
+	//list my domains
+	if ($initial)
+		$filter="(&(objectClass=virtualDomain)(|$filter)(vd=$initial*))";
+	else
+		$filter="(&(objectClass=virtualDomain)(|$filter))";
 	$vds = PhammLdap::phamm_list(LDAP_BASE,$filter,array('vd'));
 	phamm_print_xhtml ( domains_list($vds,$values));
 	phamm_print_xhtml ( action_select('domain') );
